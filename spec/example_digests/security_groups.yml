@@ -1,0 +1,43 @@
+---
+gorilla_test_group_1: 
+- group: default
+  from_port: "3456"
+  protocol: udp
+  to_port: "3456"
+  owner: "826693181925"
+- cidr_ips: 1.2.3.5/32
+  from_port: "1234"
+  protocol: tcp
+  to_port: "1234"
+- cidr_ips: 1.2.3.4/32
+  from_port: "1234"
+  protocol: tcp
+  to_port: "1234"
+gorilla_test_group_2: 
+- group: default
+  protocol: udp
+  from_port: "3456"
+  to_port: "3456"
+  owner: "826693181925"
+- cidr_ips: 1.2.3.4/32
+  protocol: tcp
+  from_port: "2345"
+  to_port: "2345"
+- cidr_ips: 1.2.3.4/32
+  protocol: tcp
+  from_port: "1234"
+  to_port: "1234"
+gorilla_test_group_3: 
+- group: default
+  from_port: "3456"
+  protocol: udp
+  to_port: "3456"
+  owner: "826693181925"
+- cidr_ips: 1.2.3.4/32
+  from_port: "4567"
+  protocol: tcp
+  to_port: "4567"
+- cidr_ips: 1.2.3.4/32
+  from_port: "5678"
+  protocol: tcp
+  to_port: "5678"

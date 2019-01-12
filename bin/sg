@@ -1,0 +1,101 @@
+#!/usr/bin/env ruby
+
+require 'trollop'
+require 'gorilla'
+
+SUB_COMMANDS = %w(digest diff copy update delete)
+
+global_opts = Trollop::options do
+  version "Gorilla #{Gorilla::VERSION} (c) #{Time.now.year} RightScale"
+  banner  "Allows easy source control and creation of RightScale security groups" + "\n" + 
+          "Usage:" + "\n" + 
+          "sg [options] <digest|diff|copy|update|delete> [arguments]" + "\n" + 
+          "Examples:" + "\n" + 
+          "  sg copy example_security_group_1 example_security_group_2" + "\n" + 
+          "  sg digest example_security_group_1" + "\n" + 
+          "Command line options:"
+
+  opt :cloud_id, "Specify the cloud id", :type => :int, :default => Gorilla.cloud_id
+
+  opt :digest_folder, "Specify resource digest storage folder", :type => :string, :default => Gorilla.digest_folder
+  opt :digest_file, "Specify security group digest file path", :type => :string, :default => Gorilla::SecurityGroup.digest_file
+  opt :dry_run, "Perform operation as a dry run", :default => Gorilla.dry_run
+
+  stop_on SUB_COMMANDS
+end
+
+Gorilla.cloud_id = global_opts[:cloud_id]
+
+Gorilla.digest_folder = global_opts[:digest_folder]
+Gorilla.dry_run = global_opts[:dry_run]
+
+Gorilla::SecurityGroup.digest_file = global_opts[:digest_file]
+
+command = ARGV.shift
+
+case command
+  when "digest"
+    security_group = ARGV.shift
+
+    unless security_group
+      Trollop::die "Please specify security group to digest"
+    end
+
+    if Gorilla::SecurityGroup.digest security_group
+      puts "\n\n"
+      puts "Successfully digested '#{security_group}' to " + Gorilla::SecurityGroup.digest_file
+    end
+
+  when "diff"
+    security_group_source = ARGV.shift
+    security_group_destination = ARGV.shift
+
+    unless security_group_source and security_group_destination
+      Trollop::die "Please specify both security groups"
+    end
+
+    if Gorilla::SecurityGroup.diff security_group_source, security_group_destination
+      puts "\n\n"
+      puts "Copied #{security_group_source} successfully to #{security_group_destination}"
+    end
+
+  when "copy"
+    security_group_source = ARGV.shift
+    security_group_destination = ARGV.shift
+
+    unless security_group_source and security_group_destination
+      Trollop::die "Please specify both source and destination security groups"
+    end
+
+    if Gorilla::SecurityGroup.copy security_group_source, security_group_destination
+      puts "\n\n"
+      puts "Copied #{security_group_source} successfully to #{security_group_destination}"
+    end
+
+  when "update"
+    security_group = ARGV.shift
+
+    unless security_group
+      Trollop::die "Please specify security group to update"
+    end
+
+    if Gorilla::SecurityGroup::update security_group
+      puts "\n\n"
+      puts "Successfully updated '#{security_group}' from " + Gorilla::SecurityGroup.digest_file
+    end
+
+  when "delete"
+    security_group = ARGV.shift
+
+    unless security_group
+      Trollop::die "Please specify security group to delete"
+    end
+
+    if Gorilla::SecurityGroup.delete security_group
+      puts "\n\n"
+      puts "Successfully deleted '#{security_group}' "
+    end
+
+  else
+    Trollop::die "unknown subcommand #{command.inspect}"
+end
